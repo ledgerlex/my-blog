@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aura — Modern Personal Blog</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f7ff',
+                            100: '#e0effe',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Georgia', 'serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .font-serif-title { font-family: 'Playfair Display', Georgia, serif; }
+        .glass {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        .dark .glass {
+            background: rgba(17, 24, 39, 0.75);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .dark ::-webkit-scrollbar-thumb { background: #334155; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 dark:bg-slate-950 dark:text-slate-100 min-h-screen transition-colors duration-300 flex flex-col justify-between">
+
+    <!-- HEADER -->
+    <header class="sticky top-0 z-40 w-full border-b border-slate-200/80 dark:border-slate-800/80 glass transition-colors">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <!-- Logo -->
+            <div class="flex items-center space-x-3 cursor-pointer" onclick="resetFilters()">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center text-white font-bold text-xl shadow-md shadow-blue-500/20">
+                    A
+                </div>
+                <span class="text-xl font-bold tracking-tight font-serif-title bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-600 dark:from-white dark:to-slate-400">
+                    Aura.
+                </span>
+            </div>
+
+            <!-- Desktop Nav -->
+            <nav class="hidden md:flex items-center space-x-8 text-sm font-medium">
+                <a href="#home" onclick="resetFilters()" class="text-blue-600 dark:text-blue-400 font-semibold hover:opacity-80 transition-opacity">Home</a>
+                <a href="#feed" class="text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Articles</a>
+                <a href="#about" onclick="openAboutModal()" class="text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">About</a>
+                <a href="#contact" onclick="openContactModal()" class="text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Contact</a>
+            </nav>
+
+            <!-- Actions -->
+            <div class="flex items-center space-x-3">
+                <button id="themeToggleBtn" onclick="toggleTheme()" class="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all" title="Toggle Theme">
+                    <i data-lucide="moon" id="themeIconMoon" class="w-5 h-5 hidden"></i>
+                    <i data-lucide="sun" id="themeIconSun" class="w-5 h-5"></i>
+                </button>
+                <button onclick="openCreatePostModal()" class="hidden sm:flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl font-medium text-sm transition-all shadow-md shadow-blue-600/20 active:scale-95">
+                    <i data-lucide="pen-tool" class="w-4 h-4"></i>
+                    <span>Write Post</span>
+                </button>
+                <!-- Mobile menu button -->
+                <button onclick="toggleMobileMenu()" class="md:hidden p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+                    <i data-lucide="menu" class="w-5 h-5"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Nav Menu -->
+        <div id="mobileMenu" class="hidden md:hidden border-b border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 px-4 pt-2 pb-4 space-y-2">
+            <a href="#home" onclick="resetFilters(); toggleMobileMenu();" class="block px-3 py-2 rounded-lg font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800">Home</a>
+            <a href="#feed" onclick="toggleMobileMenu()" class="block px-3 py-2 rounded-lg font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800">Articles</a>
+            <a href="#about" onclick="openAboutModal(); toggleMobileMenu();" class="block px-3 py-2 rounded-lg font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800">About</a>
+            <a href="#contact" onclick="openContactModal(); toggleMobileMenu();" class="block px-3 py-2 rounded-lg font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800">Contact</a>
+            <button onclick="openCreatePostModal(); toggleMobileMenu();" class="w-full text-left flex items-center space-x-2 bg-blue-600 text-white px-3 py-2 rounded-lg font-medium text-sm">
+                <i data-lucide="pen-tool" class="w-4 h-4"></i>
+                <span>Write Post</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT CONTAINER -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow w-full">
+
+        <!-- HERO / FEATURED SECTION -->
+        <section id="featuredSection" class="mb-12">
+            <!-- Dynamically injected featured post -->
+        </section>
+
+        <!-- SEARCH & FILTER BAR -->
+        <section id="feed" class="mb-8">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm">
+                <!-- Search Input -->
+                <div class="relative flex-grow max-w-md">
+                    <i data-lucide="search" class="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400"></i>
+                    <input type="text" id="searchInput" oninput="handleSearch()" placeholder="Search title, excerpt, or tags..." class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-slate-100 transition-all">
+                </div>
+
+                <!-- Categories -->
+                <div class="flex items-center space-x-2 overflow-x-auto pb-2 md:pb-0 scrollbar-none" id="categoryContainer">
+                    <!-- Dynamic categories injected here -->
+                </div>
+            </div>
+        </section>
+
+        <!-- ARTICLE FEED GRID -->
+        <section>
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-2xl font-bold font-serif-title tracking-tight text-slate-900 dark:text-slate-100" id="feedTitle">Recent Articles</h2>
+                <span id="postCount" class="text-sm font-medium text-slate-500 dark:text-slate-400">Showing posts</span>
+            </div>
+
+            <!-- Feed Grid -->
+            <div id="postsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Cards dynamically loaded here -->
+            </div>
+
+            <!-- Empty State -->
+            <div id="emptyState" class="hidden text-center py-16 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 my-6">
+                <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-blue-50 dark:bg-slate-800 flex items-center justify-center text-blue-500">
+                    <i data-lucide="file-x" class="w-8 h-8"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-slate-800 dark:text-slate-200">No articles found</h3>
+                <p class="text-slate-500 dark:text-slate-400 text-sm mt-1 max-w-sm mx-auto">Try adjusting your search query or switching categories to find what you're looking for.</p>
+                <button onclick="resetFilters()" class="mt-4 px-4 py-2 bg-blue-600 text-white text-sm rounded-xl hover:bg-blue-700 transition-all">Clear Filters</button>
+            </div>
+        </section>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 transition-colors mt-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold text-sm">A</div>
+                <span class="font-serif-title font-bold text-slate-800 dark:text-slate-200">Aura Blog</span>
+                <span class="text-xs text-slate-400">© 2026. All rights reserved.</span>
+            </div>
+            <div class="flex items-center space-x-6 text-slate-500 text-sm">
+                <a href="#privacy" onclick="toast('Privacy Policy: Standard default policy.')" class="hover:text-blue-500 transition-colors">Privacy</a>
+                <a href="#terms" onclick="toast('Terms: Open source personal blog format.')" class="hover:text-blue-500 transition-colors">Terms</a>
+                <a href="#rss" onclick="toast('RSS Feed link copied to clipboard!')" class="hover:text-blue-500 transition-colors">RSS Feed</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ARTICLE READER MODAL -->
+    <div id="readerModal" class="fixed inset-0 z-50 hidden overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 transition-opacity duration-300">
+        <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 max-w-4xl w-full max-h-[92vh] overflow-y-auto relative flex flex-col">
+            <!-- Sticky Modal Header -->
+            <div class="sticky top-0 z-20 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md px-6 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+                <span class="text-xs font-semibold uppercase tracking-wider text-blue-600 dark:text-blue-400" id="readerCategory">Category</span>
+                <div class="flex items-center space-x-2">
+                    <button id="readerLikeBtn" onclick="handleReaderLike()" class="p-2 rounded-xl text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors flex items-center space-x-1">
+                        <i data-lucide="heart" class="w-5 h-5"></i>
+                        <span id="readerLikeCount" class="text-xs font-medium">0</span>
+                    </button>
+                    <button onclick="shareArticle()" class="p-2 rounded-xl text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" title="Share Article">
+                        <i data-lucide="share-2" class="w-5 h-5"></i>
+                    </button>
+                    <button onclick="closeReaderModal()" class="p-2 rounded-xl text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                        <i data-lucide="x" class="w-6 h-6"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Modal Content Body -->
+            <div class="p-6 sm:p-10 flex-grow">
+                <img id="readerCover" src="" alt="Cover" class="w-full h-64 sm:h-96 object-cover rounded-2xl mb-8 shadow-sm">
+                
+                <h1 id="readerTitle" class="text-3xl sm:text-4xl font-bold font-serif-title text-slate-900 dark:text-slate-100 leading-tight mb-4">Article Title</h1>
+                
+                <!-- Author Info Bar -->
+                <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-6 mb-8 text-sm">
+                    <div class="flex items-center space-x-3">
+                        <img id="readerAuthorAvatar" src="" class="w-11 h-11 rounded-full object-cover border border-slate-200 dark:border-slate-700">
+                        <div>
+                            <p id="readerAuthorName" class="font-semibold text-slate-900 dark:text-slate-200"></p>
+                            <p id="readerAuthorRole" class="text-xs text-slate-500 dark:text-slate-400"></p>
+                        </div>
+                    </div>
+                    <div class="text-right text-xs text-slate-500 dark:text-slate-400">
+                        <p id="readerDate"></p>
+                        <p id="readerReadTime"></p>
+                    </div>
+                </div>
+
+                <!-- Formatted Article Content -->
+                <div id="readerContent" class="prose dark:prose-invert max-w-none text-slate-700 dark:text-slate-300 space-y-4 leading-relaxed">
+                    <!-- HTML text content rendered dynamically -->
+                </div>
+
+                <!-- Comment Section -->
+                <div class="mt-12 pt-8 border-t border-slate-200 dark:border-slate-800">
+                    <h3 class="text-xl font-bold font-serif-title mb-6 flex items-center space-x-2">
+                        <i data-lucide="message-square" class="w-5 h-5 text-blue-500"></i>
+                        <span>Comments</span>
+                        <span id="commentCountBadge" class="text-sm bg-slate-100 dark:bg-slate-800 text-blue-600 dark:text-blue-400 px-2.5 py-0.5 rounded-full">0</span>
+                    </h3>
+
+                    <!-- Comment Input Form -->
+                    <form onsubmit="submitComment(event)" class="mb-8 bg-slate-50 dark:bg-slate-800/40 p-4 rounded-2xl border border-slate-200/60 dark:border-slate-800">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
+                            <input type="text" id="commentAuthor" required placeholder="Your Name" class="px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <input type="email" id="commentEmail" placeholder="Your Email (Optional)" class="px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <textarea id="commentText" required rows="3" placeholder="Join the discussion... Share your thoughts!" class="w-full p-3 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 mb-3"></textarea>
+                        <div class="flex justify-end">
+                            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-medium text-xs px-5 py-2 rounded-xl transition-all shadow-sm">Post Comment</button>
+                        </div>
+                    </form>
+
+                    <!-- Comments List -->
+                    <div id="commentsList" class="space-y-4">
+                        <!-- Dynamic Comments loaded here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- NEW POST CREATOR MODAL -->
+    <div id="createPostModal" class="fixed inset-0 z-50 hidden overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4">
+        <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 max-w-2xl w-full max-h-[90vh] overflow-y-auto relative p-6 sm:p-8">
+            <div class="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800 mb-6">
+                <h3 class="text-xl font-bold font-serif-title text-slate-900 dark:text-slate-100 flex items-center space-x-2">
+                    <i data-lucide="pen-tool" class="w-5 h-5 text-blue-500"></i>
+                    <span>Create New Article</span>
+                </h3>
+                <button onclick="closeCreatePostModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+
+            <form onsubmit="handleCreatePost(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Article Title *</label>
+                    <input type="text" id="newTitle" required placeholder="e.g. Exploring Minimalist Architecture in Kyoto" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Category *</label>
+                        <select id="newCategory" required class="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="Technology">Technology</option>
+                            <option value="Design">Design</option>
+                            <option value="Lifestyle">Lifestyle</option>
+                            <option value="Travel">Travel</option>
+                            <option value="Philosophy">Philosophy</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Tags (Comma separated)</label>
+                        <input type="text" id="newTags" placeholder="e.g. Minimal, Architecture, Travel" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Cover Image URL</label>
+                    <input type="url" id="newCover" placeholder="https://images.unsplash.com/photo-..." class="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <p class="text-[11px] text-slate-400 mt-1">Leave blank for an automatic Unsplash preset photo.</p>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Excerpt / Brief Summary *</label>
+                    <textarea id="newExcerpt" required rows="2" placeholder="Brief 1-2 sentence overview for the card summary..." class="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Full Article Content *</label>
+                    <textarea id="newContent" required rows="6" placeholder="Write full article content here. Paragraphs separated by blank lines will format cleanly." class="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                </div>
+
+                <div class="flex items-center justify-end space-x-3 pt-4 border-t border-slate-200 dark:border-slate-800">
+                    <button type="button" onclick="closeCreatePostModal()" class="px-5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-sm hover:bg-slate-100 dark:hover:bg-slate-800 font-medium">Cancel</button>
+                    <button type="submit" class="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium shadow-md shadow-blue-600/20 transition-all">Publish Article</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ABOUT & CONTACT MODALS -->
+    <div id="aboutModal" class="fixed inset-0 z-50 hidden overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-900 rounded-3xl p-8 max-w-lg w-full border border-slate-200 dark:border-slate-800 text-center relative">
+            <button onclick="closeModal('aboutModal')" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-6 h-6"></i></button>
+            <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80" class="w-24 h-24 rounded-full mx-auto mb-4 object-cover ring-4 ring-blue-500/20">
+            <h3 class="text-2xl font-bold font-serif-title mb-1">Elena Rostova</h3>
+            <p class="text-xs text-blue-600 dark:text-blue-400 font-semibold uppercase tracking-wider mb-4">Senior UX Architect & Thought Writer</p>
+            <p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed mb-6">Welcome to Aura! This blog serves as a digital garden exploring human-centric design, technology trends, spatial computing, and digital wellness.</p>
+            <button onclick="closeModal('aboutModal')" class="bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 px-6 py-2.5 rounded-xl text-sm font-semibold">Back to Blog</button>
+        </div>
+    </div>
+
+    <div id="contactModal" class="fixed inset-0 z-50 hidden overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-900 rounded-3xl p-8 max-w-md w-full border border-slate-200 dark:border-slate-800 relative">
+            <button onclick="closeModal('contactModal')" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-6 h-6"></i></button>
+            <h3 class="text-xl font-bold font-serif-title mb-2">Get in Touch</h3>
+            <p class="text-xs text-slate-500 mb-6">Have thoughts on an article or project proposals? Drop a line!</p>
+            <form onsubmit="handleContactSubmit(event)" class="space-y-4">
+                <input type="text" required placeholder="Name" class="w-full p-2.5 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
+                <input type="email" required placeholder="Email" class="w-full p-2.5 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
+                <textarea required rows="3" placeholder="Message" class="w-full p-2.5 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800"></textarea>
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-xl font-medium text-sm transition-all">Send Message</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- TOAST NOTIFICATION CONTAINER -->
+    <div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none bg-slate-900 text-white dark:bg-white dark:text-slate-900 px-5 py-3 rounded-2xl shadow-xl text-sm font-medium flex items-center space-x-2">
+        <i data-lucide="check-circle" class="w-4 h-4 text-blue-400 dark:text-blue-600"></i>
+        <span id="toastMsg">Action complete</span>
+    </div>
+
+    <script>
+        // INITIAL SEED DATA
+        const INITIAL_POSTS = [
+            {
+                id: '1',
+                title: 'The Future of Minimalist Interface Design in AI Systems',
+                category: 'Design',
+                tags: ['UX', 'Minimalism', 'AI'],
+                cover: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1200&q=80',
+                excerpt: 'How design standards are evolving from clutter-heavy dashboards towards contextual, conversational dynamic views.',
+                content: `
+                    <p class="text-lg leading-relaxed font-serif italic text-slate-600 dark:text-slate-400 mb-6 border-l-4 border-blue-500 pl-4">
+                        "Simplicity is not the absence of clutter, that's a point-of-view side effect. Simplicity is somehow the essential rendering of purpose."
+                    </p>
+                    <p class="mb-4">As artificial intelligence capabilities become deeply embedded into everyday software, user interface design paradigms are experiencing a seismic shift. For over two decades, software UX was defined by explicit menus, persistent toolbars, and dense feature hierarchies.</p>
+                    <h3 class="text-xl font-bold font-serif-title mt-6 mb-3">Contextual Fluidity over Static Buttons</h3>
+                    <p class="mb-4">Modern users no longer want to hunt through five dropdown menus to execute a complex sequence. Interfaces are transitioning to generative and contextual components—surface elements that manifest only when relevant to the task at hand.</p>
+                    <blockquote class="bg-blue-50 dark:bg-slate-800/80 p-4 rounded-2xl my-6 border-l-4 border-blue-600 font-medium">
+                        "The best interface is the one that disappears until you express intent."
+                    </blockquote>
+                    <p>By blending subtle glassmorphic aesthetic tokens with micro-interactions, software achieves a lighter visual cognitive load while maintaining high functionality.</p>
+                `,
+                author: {
+                    name: 'Elena Rostova',
+                    role: 'Principal UX Architect',
+                    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80'
+                },
+                date: 'Oct 12, 2026',
+                readTime: '5 min read',
+                likes: 42,
+                featured: true,
+                comments: [
+                    { id: 'c1', author: 'Marcus Vance', date: 'Oct 12, 2026', text: 'Spot on analysis! Contextual UX is definitely the way forward.' }
+                ]
+            },
+            {
+                id: '2',
+                title: 'Building Modern Web Applications with Modern CSS & Web Vitals',
+                category: 'Technology',
+                tags: ['WebDev', 'CSS', 'Performance'],
+                cover: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=800&q=80',
+                excerpt: 'Exploring modern CSS container queries, subgrid, and sub-millisecond layout rendering performance.',
+                content: `
+                    <p class="mb-4">Web standards have progressed exponentially over the past few years. CSS container queries and modern grid layouts enable frontend development without heavy JavaScript libraries.</p>
+                    <h3 class="text-xl font-bold font-serif-title mt-6 mb-3">Core Performance Metrics</h3>
+                    <p class="mb-4">Keeping Cumulative Layout Shift (CLS) low while maintaining swift Interaction to Next Paint (INP) gives web applications native-like fluidity.</p>
+                `,
+                author: {
+                    name: 'Julian Chen',
+                    role: 'Fullstack Engineer',
+                    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80'
+                },
+                date: 'Oct 08, 2026',
+                readTime: '4 min read',
+                likes: 28,
+                featured: false,
+                comments: []
+            },
+            {
+                id: '3',
+                title: 'Digital Nomad Sanctuary: Work & Rest in Nordic Landscapes',
+                category: 'Travel',
+                tags: ['Nomad', 'Nordic', 'Lifestyle'],
+                cover: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80',
+                excerpt: 'Reflections on remote productivity, serene cabins, and balancing focus with natural solitude.',
+                content: `
+                    <p class="mb-4">Disconnecting from city noise to work amid quiet fjords provides unprecedented mental clarity. Here are key reflections from three months living in remote Scandinavian cabins.</p>
+                `,
+                author: {
+                    name: 'Aria Montgomery',
+                    role: 'Travel Writer',
+                    avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=200&q=80'
+                },
+                date: 'Sep 29, 2026',
+                readTime: '6 min read',
+                likes: 56,
+                featured: false,
+                comments: []
+            },
+            {
+                id: '4',
+                title: 'The Intentional Morning: Cultivating Mindfulness in Tech',
+                category: 'Lifestyle',
+                tags: ['Wellness', 'Habits', 'Mindfulness'],
+                cover: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=800&q=80',
+                excerpt: 'Simple morning routines to build focus and preserve creative energy in a notification-saturated world.',
+                content: `
+                    <p class="mb-4">Starting the day without immediate screen notifications alters neurological stress responses and deepens creative capacity for complex problem solving.</p>
+                `,
+                author: {
+                    name: 'Elena Rostova',
+                    role: 'Principal UX Architect',
+                    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80'
+                },
+                date: 'Sep 15, 2026',
+                readTime: '3 min read',
+                likes: 19,
+                featured: false,
+                comments: []
+            }
+        ];
+
+        // STATE MANAGEMENT
+        let posts = [];
+        let activeCategory = 'All';
+        let searchQuery = '';
+        let currentReaderPostId = null;
+        let likedPosts = JSON.parse(localStorage.getItem('aura_liked_posts') || '[]');
+
+        // CATEGORIES LIST
+        const categories = ['All', 'Technology', 'Design', 'Lifestyle', 'Travel', 'Philosophy'];
+
+        // INITIALIZATION
+        window.addEventListener('DOMContentLoaded', () => {
+            loadThemePreference();
+            loadPosts();
+            renderCategories();
+            renderApp();
+            lucide.createIcons();
+        });
+
+        // LOCALSTORAGE PERSISTENCE
+        function loadPosts() {
+            const saved = localStorage.getItem('aura_blog_posts');
+            if (saved) {
+                try {
+                    posts = JSON.parse(saved);
+                } catch (e) {
+                    posts = INITIAL_POSTS;
+                }
+            } else {
+                posts = INITIAL_POSTS;
+                savePosts();
+            }
+        }
+
+        function savePosts() {
+            localStorage.setItem('aura_blog_posts', JSON.stringify(posts));
+        }
+
+        // THEME MANAGEMENT
+        function loadThemePreference() {
+            const savedTheme = localStorage.getItem('aura_theme');
+            if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark');
+                document.getElementById('themeIconSun').classList.remove('hidden');
+                document.getElementById('themeIconMoon').classList.add('hidden');
+            } else {
+                document.documentElement.classList.remove('dark');
+                document.getElementById('themeIconSun').classList.add('hidden');
+                document.getElementById('themeIconMoon').classList.remove('hidden');
+            }
+        }
+
+        function toggleTheme() {
+            const isDark = document.documentElement.classList.toggle('dark');
+            localStorage.setItem('aura_theme', isDark ? 'dark' : 'light');
+            document.getElementById('themeIconSun').classList.toggle('hidden', !isDark);
+            document.getElementById('themeIconMoon').classList.toggle('hidden', isDark);
+        }
+
+        // RENDER CATEGORY BUTTONS
+        function renderCategories() {
+            const container = document.getElementById('categoryContainer');
+            container.innerHTML = categories.map(cat => {
+                const isActive = cat === activeCategory;
+                const activeClasses = isActive 
+                    ? 'bg-blue-600 text-white shadow-sm shadow-blue-500/30' 
+                    : 'bg-slate-100 dark:bg-slate-800/80 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700';
+                return `<button onclick="setCategory('${cat}')" class="px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${activeClasses}">${cat}</button>`;
+            }).join('');
+        }
+
+        function setCategory(cat) {
+            activeCategory = cat;
+            renderCategories();
+            renderApp();
+        }
+
+        function handleSearch() {
+            searchQuery = document.getElementById('searchInput').value.toLowerCase();
+            renderApp();
+        }
+
+        function resetFilters() {
+            activeCategory = 'All';
+            searchQuery = '';
+            document.getElementById('searchInput').value = '';
+            renderCategories();
+            renderApp();
+        }
+
+        // RENDER FEATURED & FEED
+        function renderApp() {
+            // Filter Posts
+            const filtered = posts.filter(post => {
+                const matchesCat = activeCategory === 'All' || post.category === activeCategory;
+                const matchesQuery = !searchQuery || 
+                    post.title.toLowerCase().includes(searchQuery) || 
+                    post.excerpt.toLowerCase().includes(searchQuery) ||
+                    post.tags.some(t => t.toLowerCase().includes(searchQuery));
+                return matchesCat && matchesQuery;
+            });
+
+            // Featured Article (First featured item or first post in list)
+            const featuredSection = document.getElementById('featuredSection');
+            const featuredPost = posts.find(p => p.featured) || posts[0];
+
+            if (featuredPost && activeCategory === 'All' && !searchQuery) {
+                featuredSection.classList.remove('hidden');
+                const isLiked = likedPosts.includes(featuredPost.id);
+                featuredSection.innerHTML = `
+                    <div class="relative overflow-hidden rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xl grid grid-cols-1 lg:grid-cols-12 gap-0 group">
+                        <div class="lg:col-span-7 relative h-72 lg:h-auto overflow-hidden">
+                            <img src="${featuredPost.cover}" alt="Cover" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+                            <div class="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent lg:hidden"></div>
+                            <span class="absolute top-4 left-4 bg-blue-600/90 text-white backdrop-blur-md px-3 py-1 rounded-lg text-xs font-semibold tracking-wider uppercase">Featured</span>
+                        </div>
+                        <div class="lg:col-span-5 p-6 sm:p-10 flex flex-col justify-between">
+                            <div>
+                                <div class="flex items-center space-x-2 text-xs font-semibold text-blue-600 dark:text-blue-400 mb-2">
+                                    <span>${featuredPost.category}</span>
+                                    <span>•</span>
+                                    <span>${featuredPost.readTime}</span>
+                                </div>
+                                <h2 class="text-2xl sm:text-3xl font-bold font-serif-title text-slate-900 dark:text-slate-100 leading-tight mb-3 hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer" onclick="openReaderModal('${featuredPost.id}')">
+                                    ${featuredPost.title}
+                                </h2>
+                                <p class="text-slate-600 dark:text-slate-300 text-sm leading-relaxed mb-6 line-clamp-3">
+                                    ${featuredPost.excerpt}
+                                </p>
+                            </div>
+                            <div>
+                                <div class="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-slate-800 mb-4">
+                                    <div class="flex items-center space-x-3">
+                                        <img src="${featuredPost.author.avatar}" class="w-9 h-9 rounded-full object-cover">
+                                        <div>
+                                            <p class="text-xs font-semibold text-slate-900 dark:text-slate-200">${featuredPost.author.name}</p>
+                                            <p class="text-[11px] text-slate-400">${featuredPost.date}</p>
+                                        </div>
+                                    </div>
+                                    <button onclick="toggleLike('${featuredPost.id}')" class="flex items-center space-x-1.5 text-xs text-slate-500 hover:text-red-500 transition-colors ${isLiked ? 'text-red-500' : ''}">
+                                        <i data-lucide="heart" class="w-4 h-4 ${isLiked ? 'fill-current' : ''}"></i>
+                                        <span>${featuredPost.likes}</span>
+                                    </button>
+                                </div>
+                                <button onclick="openReaderModal('${featuredPost.id}')" class="w-full bg-slate-900 hover:bg-slate-800 dark:bg-blue-600 dark:hover:bg-blue-700 text-white font-medium text-xs py-3 rounded-xl transition-all flex items-center justify-center space-x-2 shadow-sm">
+                                    <span>Read Full Article</span>
+                                    <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                featuredSection.classList.add('hidden');
+            }
+
+            // Render Feed Cards
+            const grid = document.getElementById('postsGrid');
+            const emptyState = document.getElementById('emptyState');
+            document.getElementById('postCount').innerText = `${filtered.length} article${filtered.length === 1 ? '' : 's'}`;
+
+            if (filtered.length === 0) {
+                grid.innerHTML = '';
+                emptyState.classList.remove('hidden');
+            } else {
+                emptyState.classList.add('hidden');
+                grid.innerHTML = filtered.map(post => {
+                    const isLiked = likedPosts.includes(post.id);
+                    return `
+                        <article class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between group">
+                            <div>
+                                <div class="relative h-48 overflow-hidden">
+                                    <img src="${post.cover}" alt="Cover" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                                    <span class="absolute top-3 left-3 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md text-slate-800 dark:text-slate-200 text-[11px] font-bold px-2.5 py-1 rounded-lg">
+                                        ${post.category}
+                                    </span>
+                                </div>
+                                <div class="p-6">
+                                    <div class="flex flex-wrap gap-1 mb-3">
+                                        ${post.tags.map(tag => `<span class="text-[10px] font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/50 px-2 py-0.5 rounded-md">#${tag}</span>`).join('')}
+                                    </div>
+                                    <h3 onclick="openReaderModal('${post.id}')" class="text-xl font-bold font-serif-title text-slate-900 dark:text-slate-100 hover:text-blue-600 dark:hover:text-blue-400 cursor-pointer transition-colors line-clamp-2 mb-2">
+                                        ${post.title}
+                                    </h3>
+                                    <p class="text-slate-600 dark:text-slate-400 text-xs leading-relaxed line-clamp-3 mb-4">
+                                        ${post.excerpt}
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="px-6 pb-6 pt-2 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-xs text-slate-500">
+                                <div class="flex items-center space-x-2">
+                                    <img src="${post.author.avatar}" class="w-7 h-7 rounded-full object-cover">
+                                    <div>
+                                        <p class="font-medium text-slate-800 dark:text-slate-300 text-[11px]">${post.author.name}</p>
+                                        <p class="text-[10px] text-slate-400">${post.date} • ${post.readTime}</p>
+                                    </div>
+                                </div>
+                                <button onclick="toggleLike('${post.id}')" class="p-2 rounded-xl bg-slate-50 dark:bg-slate-800/60 hover:bg-red-50 dark:hover:bg-red-950/30 hover:text-red-500 transition-colors flex items-center space-x-1 ${isLiked ? 'text-red-500 bg-red-50 dark:bg-red-950/30' : ''}">
+                                    <i data-lucide="heart" class="w-4 h-4 ${isLiked ? 'fill-current' : ''}"></i>
+                                    <span class="font-medium">${post.likes}</span>
+                                </button>
+                            </div>
+                        </article>
+                    `;
+                }).join('');
+            }
+            lucide.createIcons();
+        }
+
+        // READER MODAL ACTIONS
+        function openReaderModal(id) {
+            const post = posts.find(p => p.id === id);
+            if (!post) return;
+
+            currentReaderPostId = id;
+            document.getElementById('readerCategory').innerText = post.category;
+            document.getElementById('readerTitle').innerText = post.title;
+            document.getElementById('readerCover').src = post.cover;
+            document.getElementById('readerAuthorAvatar').src = post.author.avatar;
+            document.getElementById('readerAuthorName').innerText = post.author.name;
+            document.getElementById('readerAuthorRole').innerText = post.author.role;
+            document.getElementById('readerDate').innerText = post.date;
+            document.getElementById('readerReadTime').innerText = post.readTime;
+            document.getElementById('readerContent').innerHTML = post.content;
+
+            updateReaderLikeBtn(post);
+            renderComments(post);
+
+            document.getElementById('readerModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            lucide.createIcons();
+        }
+
+        function closeReaderModal() {
+            document.getElementById('readerModal').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+            currentReaderPostId = null;
+        }
+
+        function updateReaderLikeBtn(post) {
+            const isLiked = likedPosts.includes(post.id);
+            const btn = document.getElementById('readerLikeBtn');
+            document.getElementById('readerLikeCount').innerText = post.likes;
+            if (isLiked) {
+                btn.classList.add('text-red-500');
+                btn.querySelector('i').classList.add('fill-current');
+            } else {
+                btn.classList.remove('text-red-500');
+                btn.querySelector('i').classList.remove('fill-current');
+            }
+        }
+
+        function handleReaderLike() {
+            if (currentReaderPostId) {
+                toggleLike(currentReaderPostId);
+                const post = posts.find(p => p.id === currentReaderPostId);
+                if (post) updateReaderLikeBtn(post);
+            }
+        }
+
+        function toggleLike(id) {
+            const post = posts.find(p => p.id === id);
+            if (!post) return;
+
+            const idx = likedPosts.indexOf(id);
+            if (idx > -1) {
+                likedPosts.splice(idx, 1);
+                post.likes = Math.max(0, post.likes - 1);
+                toast('Removed from likes');
+            } else {
+                likedPosts.push(id);
+                post.likes += 1;
+                toast('Added to liked articles!');
+            }
+
+            localStorage.setItem('aura_liked_posts', JSON.stringify(likedPosts));
+            savePosts();
+            renderApp();
+        }
+
+        // COMMENT SYSTEM
+        function renderComments(post) {
+            const container = document.getElementById('commentsList');
+            const countBadge = document.getElementById('commentCountBadge');
+            const comments = post.comments || [];
+            countBadge.innerText = comments.length;
+
+            if (comments.length === 0) {
+                container.innerHTML = `<p class="text-xs text-slate-400 italic">No comments yet. Be the first to start the conversation!</p>`;
+                return;
+            }
+
+            container.innerHTML = comments.map(c => `
+                <div class="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl border border-slate-200/60 dark:border-slate-800">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-xs font-semibold text-slate-800 dark:text-slate-200">${escapeHtml(c.author)}</span>
+                        <span class="text-[10px] text-slate-400">${c.date}</span>
+                    </div>
+                    <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">${escapeHtml(c.text)}</p>
+                </div>
+            `).join('');
+        }
+
+        function submitComment(e) {
+            e.preventDefault();
+            if (!currentReaderPostId) return;
+
+            const post = posts.find(p => p.id === currentReaderPostId);
+            if (!post) return;
+
+            const nameInput = document.getElementById('commentAuthor');
+            const textInput = document.getElementById('commentText');
+
+            const newComment = {
+                id: 'c_' + Date.now(),
+                author: nameInput.value.trim(),
+                date: 'Just now',
+                text: textInput.value.trim()
+            };
+
+            if (!post.comments) post.comments = [];
+            post.comments.unshift(newComment);
+
+            savePosts();
+            renderComments(post);
+
+            textInput.value = '';
+            toast('Comment published successfully!');
+        }
+
+        // CREATE NEW POST
+        function openCreatePostModal() {
+            document.getElementById('createPostModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeCreatePostModal() {
+            document.getElementById('createPostModal').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+
+        function handleCreatePost(e) {
+            e.preventDefault();
+            const title = document.getElementById('newTitle').value.trim();
+            const category = document.getElementById('newCategory').value;
+            const tagsInput = document.getElementById('newTags').value;
+            let cover = document.getElementById('newCover').value.trim();
+            const excerpt = document.getElementById('newExcerpt').value.trim();
+            const contentRaw = document.getElementById('newContent').value.trim();
+
+            if (!cover) {
+                // Fallback stock image based on category
+                cover = 'https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&w=800&q=80';
+            }
+
+            const formattedContent = contentRaw.split('\n\n').map(para => `<p class="mb-4">${escapeHtml(para)}</p>`).join('');
+            const tags = tagsInput ? tagsInput.split(',').map(t => t.trim()) : [category];
+
+            const newPost = {
+                id: Date.now().toString(),
+                title,
+                category,
+                tags,
+                cover,
+                excerpt,
+                content: formattedContent,
+                author: {
+                    name: 'Elena Rostova',
+                    role: 'Author',
+                    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80'
+                },
+                date: 'Today',
+                readTime: `${Math.max(1, Math.ceil(contentRaw.split(' ').length / 200))} min read`,
+                likes: 0,
+                featured: false,
+                comments: []
+            };
+
+            posts.unshift(newPost);
+            savePosts();
+            renderApp();
+            closeCreatePostModal();
+
+            // Reset form fields
+            e.target.reset();
+            toast('Article published successfully!');
+        }
+
+        // AUXILIARY UTILITIES
+        function shareArticle() {
+            const url = window.location.href;
+            document.execCommand('copy');
+            toast('Article link copied to clipboard!');
+        }
+
+        function openAboutModal() {
+            document.getElementById('aboutModal').classList.remove('hidden');
+        }
+
+        function openContactModal() {
+            document.getElementById('contactModal').classList.remove('hidden');
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.add('hidden');
+        }
+
+        function handleContactSubmit(e) {
+            e.preventDefault();
+            closeModal('contactModal');
+            toast('Message sent! Thanks for reaching out.');
+            e.target.reset();
+        }
+
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobileMenu');
+            menu.classList.toggle('hidden');
+        }
+
+        function toast(message) {
+            const toastEl = document.getElementById('toast');
+            document.getElementById('toastMsg').innerText = message;
+            toastEl.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => {
+                toastEl.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+
+        function escapeHtml(str) {
+            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+        }
+    </script>
+</body>
+</html>
